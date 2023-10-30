@@ -1,7 +1,7 @@
 import javax.swing.*;
 
 /**
- * 23:45초부터 시작
+ * 33:55분까지
  */
 public class Main {
 

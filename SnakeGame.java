@@ -15,6 +15,9 @@ public class SnakeGame extends JPanel implements ActionListener {
    private final int cellSize;
    private static final int FRAME_RATE = 20;
    private boolean gameStarted = false;
+   private boolean gameOver = false;
+   private Direction direction = Direction.RIGHT;
+   private Direction newDirection = Direction.RIGHT;
    private final List<GamePoint> snake = new ArrayList<>();
 
    public SnakeGame(final int width, final int height) {
@@ -34,12 +37,41 @@ public class SnakeGame extends JPanel implements ActionListener {
       addKeyListener(new KeyAdapter() {
          @Override
          public void keyPressed(final KeyEvent e) {
-            if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-               gameStarted = true;
-            }
+            handleKeyEvent(e.getKeyCode());
          }
       });
       new Timer(1000 / FRAME_RATE, this).start();
+   }
+
+   private void handleKeyEvent(final int keyCode) {
+      if (!gameStarted) {
+         if (keyCode == KeyEvent.VK_SPACE) {
+            gameStarted = true;
+         }
+      } else if (!gameOver) {
+           switch (keyCode) {
+              case KeyEvent.VK_UP :
+                 if (direction != Direction.DOWN) {
+                    newDirection = Direction.UP;
+                 }
+                 break;
+              case KeyEvent.VK_DOWN :
+                 if (direction != Direction.UP) {
+                    newDirection = Direction.DOWN;
+                 }
+                 break;
+              case KeyEvent.VK_RIGHT :
+                 if (direction != Direction.LEFT) {
+                    newDirection = Direction.RIGHT;
+                 }
+                 break;
+              case KeyEvent.VK_LEFT :
+                 if (direction != Direction.RIGHT) {
+                    newDirection = Direction.LEFT;
+                 }
+                 break;
+           }
+      }
    }
 
    private void resetGameData() {
@@ -73,12 +105,45 @@ public class SnakeGame extends JPanel implements ActionListener {
       }
    }
 
+   private void move() {
+      direction = newDirection;
+
+      final GamePoint head = snake.getFirst();
+      final GamePoint newHead = switch (direction) {
+         case UP -> new GamePoint(head.x, head.y - cellSize);
+         case DOWN -> new GamePoint(head.x, head.y + cellSize);
+         case LEFT -> new GamePoint(head.x - cellSize, head.y);
+         case RIGHT -> new GamePoint(head.x + cellSize, head.y);
+      };
+      snake.addFirst(newHead);
+
+      if (isCollision()) {
+         gameOver = true;
+         snake.removeFirst();
+      } else {
+         snake.removeLast();
+      }
+
+   }
+
+   private boolean isCollision() {
+     final GamePoint head = snake.getFirst();
+     final var invalidWidth = (head.x < 0) || (head.x >= width);
+     final var invalidHeight = (head.y < 0) || (head.y >= height);
+     return (invalidWidth || invalidHeight);
+   }
+
    @Override
    public void actionPerformed(final ActionEvent e) {
+      if (gameStarted && !gameOver) {
+         move();
+      }
       repaint();
    }
 
-   private record  GamePoint(int x, int y) {
+   private record  GamePoint(int x, int y) {}
 
+   private enum Direction {
+      UP, DOWN, RIGHT, LEFT
    }
 }
