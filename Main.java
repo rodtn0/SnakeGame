@@ -1,7 +1,7 @@
 import javax.swing.*;
 
 /**
- * 33:55분까지
+ * https://youtu.be/iGdvm-9IqEw?si=PUTa--Qy1_F-Et-5
  */
 public class Main {
 
